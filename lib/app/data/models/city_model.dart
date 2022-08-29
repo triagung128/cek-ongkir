@@ -39,4 +39,7 @@ class City {
     if (data == null || data.isEmpty) return [];
     return data.map((item) => City.fromJson(item)).toList();
   }
+
+  @override
+  String toString() => "$type $cityName";
 }

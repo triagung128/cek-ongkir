@@ -20,4 +20,7 @@ class Province {
     if (data == null || data.isEmpty) return [];
     return data.map((item) => Province.fromJson(item)).toList();
   }
+
+  @override
+  String toString() => province!;
 }
