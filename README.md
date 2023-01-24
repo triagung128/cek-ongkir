@@ -1,5 +1,5 @@
 # Cek Ongkir
-Aplikasi cek ongkir. Project ini dibangun dengan Flutter + Getx + RajaOngkir Api.
+Aplikasi cek ongkir. Project ini dibangun dengan Flutter + Getx + RajaOngkir Api + Dio.
 
 ![Thumbnail](https://github.com/triagung128/cek-ongkir/blob/main/assets/screenshots/banner.png)
 
