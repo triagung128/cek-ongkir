@@ -1,60 +1,91 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:dio/dio.dart';
 
-import '../../../data/models/ongkir_model.dart';
+import '../../../data/models/city_model.dart';
+import '../../../data/models/province_model.dart';
+import '../../../data/services/api_service.dart';
 
 class HomeController extends GetxController {
-  String apiKey = "7c417890b102d40434ef75d7a67849fe";
+  final weightC = TextEditingController();
+  final apiService = ApiService();
 
-  String urlGetProvince = "https://api.rajaongkir.com/starter/province";
-  String urlGetCity = "https://api.rajaongkir.com/starter/city";
-  String urlCost = "https://api.rajaongkir.com/starter/cost";
+  final couriers = [
+    {
+      "code": "jne",
+      "name": "JNE",
+    },
+    {
+      "code": "pos",
+      "name": "POS Indonesia",
+    },
+    {
+      "code": "tiki",
+      "name": "TIKI",
+    },
+  ];
 
-  TextEditingController weightC = TextEditingController();
+  Province? originProvince;
+  City? originCity;
+  Province? destinationProvince;
+  City? destinationCity;
 
+  RxString courierCode = "".obs;
   RxBool isLoading = false.obs;
 
-  RxString provAsalId = "0".obs;
-  RxString cityAsalId = "0".obs;
-  RxString provTujuanId = "0".obs;
-  RxString cityTujuanId = "0".obs;
+  Future<List<Province>> getProvinces() async {
+    return await apiService.getProvinces();
+  }
 
-  RxString codeKurir = "".obs;
+  Future<List<City>> getCities() async {
+    return await apiService.getCities(originProvince!.provinceId!);
+  }
 
-  List<Ongkir> dataOngkir = [];
+  setOriginProvince(Province? province) {
+    originProvince = province;
+    originCity = null;
+    update();
+  }
 
-  void cekOngkir() async {
-    if (provAsalId.value != "0" &&
-        provTujuanId.value != "0" &&
-        cityAsalId.value != "0" &&
-        cityTujuanId.value != "0" &&
-        codeKurir.value != "" &&
+  setOriginCity(City? city) {
+    originCity = city;
+    update();
+  }
+
+  setDestinationProvince(Province? province) {
+    destinationProvince = province;
+    destinationCity = null;
+    update();
+  }
+
+  setDetsinationCity(City? city) {
+    destinationCity = city;
+    update();
+  }
+
+  setCourierCode(String courierCode) {
+    this.courierCode.value = courierCode;
+  }
+
+  cekOngkir() async {
+    if (originProvince != null &&
+        destinationProvince != null &&
+        originCity != null &&
+        destinationCity != null &&
+        courierCode.value != "" &&
         weightC.text != "") {
       try {
         isLoading.value = true;
-        var response = await Dio().post(
-          urlCost,
-          options: Options(
-            headers: {
-              "key": apiKey,
-              "content-type": "application/x-www-form-urlencoded",
-            },
-          ),
-          data: {
-            "origin": cityAsalId.value,
-            "destination": cityTujuanId.value,
-            "weight": weightC.text,
-            "courier": codeKurir.value,
-          },
+        final dataOngkir = await apiService.getCosts(
+          originCity!.cityId!,
+          destinationCity!.cityId!,
+          weightC.text,
+          courierCode.value,
         );
         isLoading.value = false;
-        List ongkir =
-            response.data["rajaongkir"]["results"][0]["costs"] as List;
-        dataOngkir = Ongkir.fromJsonList(ongkir);
 
         Get.defaultDialog(
+          titlePadding: const EdgeInsets.all(16),
           title: "ONGKOS KIRIM",
           content: Column(
             children: dataOngkir
@@ -76,8 +107,7 @@ class HomeController extends GetxController {
       }
     } else {
       Get.defaultDialog(
-        title: "TERJADI KESALAHAN",
-        middleText: "Data input belum lengkap",
+        middleText: "Mohon lengkapi form",
       );
     }
   }

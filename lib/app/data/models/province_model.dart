@@ -2,7 +2,10 @@ class Province {
   String? provinceId;
   String? province;
 
-  Province({this.provinceId, this.province});
+  Province({
+    this.provinceId,
+    this.province,
+  });
 
   Province.fromJson(Map<String, dynamic> json) {
     provinceId = json['province_id'];

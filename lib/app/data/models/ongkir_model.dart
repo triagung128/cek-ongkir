@@ -3,7 +3,11 @@ class Ongkir {
   String? description;
   List<Cost>? cost;
 
-  Ongkir({this.service, this.description, this.cost});
+  Ongkir({
+    this.service,
+    this.description,
+    this.cost,
+  });
 
   Ongkir.fromJson(Map<String, dynamic> json) {
     service = json['service'];
@@ -37,7 +41,11 @@ class Cost {
   String? etd;
   String? note;
 
-  Cost({this.value, this.etd, this.note});
+  Cost({
+    this.value,
+    this.etd,
+    this.note,
+  });
 
   Cost.fromJson(Map<String, dynamic> json) {
     value = json['value'];

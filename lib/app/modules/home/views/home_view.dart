@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,12 +13,26 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cek Ongkir'),
-        centerTitle: true,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.local_shipping),
+            SizedBox(width: 12),
+            Text('Cek Ongkir'),
+          ],
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          const Text(
+            'Asal :',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 20),
           DropdownSearch<Province>(
             dropdownDecoratorProps: const DropDownDecoratorProps(
               dropdownSearchDecoration: InputDecoration(
@@ -33,50 +46,81 @@ class HomeView extends GetView<HomeController> {
                 title: Text("${item.province}"),
               ),
               showSearchBox: true,
+              searchFieldProps: const TextFieldProps(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Cari Provinsi',
+                  isDense: true,
+                ),
+              ),
+              title: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 8,
+                ),
+                child: const Text(
+                  'Provinsi Asal',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             ),
-            asyncItems: (_) async {
-              var response = await Dio().get(
-                controller.urlGetProvince,
-                queryParameters: {
-                  "key": controller.apiKey,
-                },
-              );
-              var result = response.data["rajaongkir"]["results"];
-              return Province.fromJsonList(result);
-            },
-            onChanged: (value) {
-              controller.provAsalId.value = value?.provinceId ?? "0";
-            },
+            asyncItems: (_) async => await controller.getProvinces(),
+            onChanged: (province) => controller.setOriginProvince(province),
           ),
           const SizedBox(height: 20),
-          DropdownSearch<City>(
-            dropdownDecoratorProps: const DropDownDecoratorProps(
-              dropdownSearchDecoration: InputDecoration(
-                labelText: "Kota/Kabupaten Asal",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            popupProps: PopupProps.dialog(
-              fit: FlexFit.loose,
-              itemBuilder: (context, item, isSelected) => ListTile(
-                title: Text("${item.type} ${item.cityName}"),
-              ),
-              showSearchBox: true,
-            ),
-            asyncItems: (_) async {
-              var response = await Dio().get(
-                controller.urlGetCity,
-                queryParameters: {
-                  "key": controller.apiKey,
-                  "province": controller.provAsalId,
-                },
+          GetBuilder<HomeController>(
+            builder: (_) {
+              return DropdownSearch<City>(
+                selectedItem: controller.originCity,
+                enabled: controller.originProvince == null ? false : true,
+                dropdownDecoratorProps: const DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    labelText: "Kota/Kabupaten Asal",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                popupProps: PopupProps.dialog(
+                  fit: FlexFit.loose,
+                  itemBuilder: (_, item, __) => ListTile(
+                    title: Text("${item.type} ${item.cityName}"),
+                  ),
+                  showSearchBox: true,
+                  searchFieldProps: const TextFieldProps(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Cari Kota',
+                      isDense: true,
+                    ),
+                  ),
+                  title: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 8,
+                    ),
+                    child: const Text(
+                      'Kota/Kabupaten Asal',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                asyncItems: (_) async => await controller.getCities(),
+                onChanged: (city) => controller.setOriginCity(city),
               );
-              var result = response.data["rajaongkir"]["results"];
-              return City.fromJsonList(result);
             },
-            onChanged: (value) {
-              controller.cityAsalId.value = value?.cityId ?? "0";
-            },
+          ),
+          const SizedBox(height: 30),
+          const Text(
+            'Tujuan :',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 20),
           DropdownSearch<Province>(
@@ -93,51 +137,55 @@ class HomeView extends GetView<HomeController> {
               ),
               showSearchBox: true,
             ),
-            asyncItems: (_) async {
-              var response = await Dio().get(
-                controller.urlGetProvince,
-                queryParameters: {
-                  "key": controller.apiKey,
-                },
-              );
-              var result = response.data["rajaongkir"]["results"];
-              return Province.fromJsonList(result);
-            },
-            onChanged: (value) {
-              controller.provTujuanId.value = value?.provinceId ?? "0";
-            },
+            asyncItems: (_) async => await controller.getProvinces(),
+            onChanged: (province) =>
+                controller.setDestinationProvince(province),
           ),
           const SizedBox(height: 20),
-          DropdownSearch<City>(
-            dropdownDecoratorProps: const DropDownDecoratorProps(
-              dropdownSearchDecoration: InputDecoration(
-                labelText: "Kota/Kabupaten Tujuan",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            popupProps: PopupProps.dialog(
-              fit: FlexFit.loose,
-              itemBuilder: (context, item, isSelected) => ListTile(
-                title: Text("${item.type} ${item.cityName}"),
-              ),
-              showSearchBox: true,
-            ),
-            asyncItems: (_) async {
-              var response = await Dio().get(
-                controller.urlGetCity,
-                queryParameters: {
-                  "key": controller.apiKey,
-                  "province": controller.provTujuanId,
-                },
+          GetBuilder<HomeController>(
+            builder: (_) {
+              return DropdownSearch<City>(
+                selectedItem: controller.destinationCity,
+                enabled: controller.destinationProvince == null ? false : true,
+                dropdownDecoratorProps: const DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    labelText: "Kota/Kabupaten Tujuan",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                popupProps: PopupProps.dialog(
+                  fit: FlexFit.loose,
+                  itemBuilder: (_, item, __) => ListTile(
+                    title: Text("${item.type} ${item.cityName}"),
+                  ),
+                  showSearchBox: true,
+                  searchFieldProps: const TextFieldProps(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Cari Kota',
+                      isDense: true,
+                    ),
+                  ),
+                  title: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 8,
+                    ),
+                    child: const Text(
+                      'Kota/Kabupaten Tujuan',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                asyncItems: (_) async => await controller.getCities(),
+                onChanged: (city) => controller.setDetsinationCity(city),
               );
-              var result = response.data["rajaongkir"]["results"];
-              return City.fromJsonList(result);
-            },
-            onChanged: (value) {
-              controller.cityTujuanId.value = value?.cityId ?? "0";
             },
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 30),
           TextField(
             controller: controller.weightC,
             autocorrect: false,
@@ -147,7 +195,7 @@ class HomeView extends GetView<HomeController> {
               border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 30),
           DropdownSearch<Map<String, dynamic>>(
             dropdownDecoratorProps: const DropDownDecoratorProps(
               dropdownSearchDecoration: InputDecoration(
@@ -155,41 +203,30 @@ class HomeView extends GetView<HomeController> {
                 border: OutlineInputBorder(),
               ),
             ),
-            items: const [
-              {
-                "code": "jne",
-                "name": "JNE",
-              },
-              {
-                "code": "pos",
-                "name": "POS Indonesia",
-              },
-              {
-                "code": "tiki",
-                "name": "TIKI",
-              },
-            ],
+            items: controller.couriers,
             popupProps: PopupProps.menu(
               fit: FlexFit.loose,
-              itemBuilder: (context, item, isSelected) => ListTile(
+              itemBuilder: (_, item, __) => ListTile(
                 title: Text("${item["name"]}"),
               ),
             ),
-            dropdownBuilder: (_, selectedItem) {
-              return Text("${selectedItem?['name'] ?? "Pilih Kurir"}");
-            },
-            onChanged: (value) {
-              controller.codeKurir.value = value?["code"] ?? "";
-            },
+            dropdownBuilder: (_, selectedItem) =>
+                Text("${selectedItem?['name'] ?? "Pilih Kurir"}"),
+            onChanged: (value) => controller.setCourierCode(value?['code']),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 40),
           Obx(
             () => ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                fixedSize: Size(MediaQuery.of(context).size.width, 48),
+              ),
               onPressed: controller.isLoading.isFalse
                   ? () => controller.cekOngkir()
                   : null,
               child: Text(
-                controller.isLoading.isFalse ? "CEK ONGKOS KIRIM" : "Loading",
+                controller.isLoading.isFalse
+                    ? "CEK ONGKOS KIRIM"
+                    : "Loading...",
               ),
             ),
           ),
