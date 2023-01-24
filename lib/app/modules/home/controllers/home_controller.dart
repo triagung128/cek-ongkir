@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../data/models/city_model.dart';
+import '../../../data/models/courier_model.dart';
 import '../../../data/models/province_model.dart';
 import '../../../data/services/api_service.dart';
 
@@ -11,34 +12,36 @@ class HomeController extends GetxController {
   final apiService = ApiService();
 
   final couriers = [
-    {
-      "code": "jne",
-      "name": "JNE",
-    },
-    {
-      "code": "pos",
-      "name": "POS Indonesia",
-    },
-    {
-      "code": "tiki",
-      "name": "TIKI",
-    },
+    Courier(
+      code: "jne",
+      name: "JNE",
+    ),
+    Courier(
+      code: "pos",
+      name: "POS Indonesia",
+    ),
+    Courier(
+      code: "tiki",
+      name: "TIKI",
+    ),
   ];
 
   Province? originProvince;
   City? originCity;
   Province? destinationProvince;
   City? destinationCity;
+  Courier? courier;
 
-  RxString courierCode = "".obs;
   RxBool isLoading = false.obs;
 
   Future<List<Province>> getProvinces() async {
     return await apiService.getProvinces();
   }
 
-  Future<List<City>> getCities() async {
-    return await apiService.getCities(originProvince!.provinceId!);
+  Future<List<City>> getCities(bool isOrigin) async {
+    return await apiService.getCities(
+      isOrigin ? originProvince!.provinceId! : destinationProvince!.provinceId!,
+    );
   }
 
   setOriginProvince(Province? province) {
@@ -58,21 +61,19 @@ class HomeController extends GetxController {
     update();
   }
 
-  setDetsinationCity(City? city) {
+  setDestinationCity(City? city) {
     destinationCity = city;
     update();
   }
 
-  setCourierCode(String courierCode) {
-    this.courierCode.value = courierCode;
+  setCourierCode(Courier? courier) {
+    this.courier = courier;
   }
 
   cekOngkir() async {
-    if (originProvince != null &&
-        destinationProvince != null &&
-        originCity != null &&
+    if (originCity != null &&
         destinationCity != null &&
-        courierCode.value != "" &&
+        courier != null &&
         weightC.text != "") {
       try {
         isLoading.value = true;
@@ -80,34 +81,67 @@ class HomeController extends GetxController {
           originCity!.cityId!,
           destinationCity!.cityId!,
           weightC.text,
-          courierCode.value,
+          courier!.code!,
         );
         isLoading.value = false;
 
         Get.defaultDialog(
           titlePadding: const EdgeInsets.all(16),
           title: "ONGKOS KIRIM",
-          content: Column(
-            children: dataOngkir
-                .map(
-                  (item) => ListTile(
-                    title: Text(item.service!.toUpperCase()),
-                    subtitle: Text("Rp. ${item.cost![0].value}"),
+          contentPadding: const EdgeInsets.all(16),
+          content: SizedBox(
+            height: 350,
+            width: 250,
+            child: Column(
+              children: [
+                Text('Kurir : ${courier!.name}'),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: dataOngkir.length,
+                    itemBuilder: (_, index) {
+                      final item = dataOngkir[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: ListTile(
+                          tileColor: Colors.blueGrey[50],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          title: Text(item.service!.toUpperCase()),
+                          subtitle: Text("Rp. ${item.cost![0].value}"),
+                          trailing: const Icon(Icons.local_shipping),
+                        ),
+                      );
+                    },
                   ),
-                )
-                .toList(),
+                ),
+              ],
+            ),
           ),
         );
       } catch (e) {
         if (kDebugMode) print(e);
+        isLoading.value = false;
         Get.defaultDialog(
+          titlePadding: const EdgeInsets.all(16),
+          contentPadding: const EdgeInsets.all(16),
           title: "TERJADI KESALAHAN",
           middleText: "Tidak dapat mengecek ongkos kirim",
+          textConfirm: 'Oke',
+          confirmTextColor: Colors.white,
+          onConfirm: () => Get.back(),
         );
       }
     } else {
       Get.defaultDialog(
-        middleText: "Mohon lengkapi form",
+        titlePadding: const EdgeInsets.all(16),
+        contentPadding: const EdgeInsets.all(16),
+        title: 'Peringatan !',
+        middleText: 'Mohon lengkapi form',
+        textConfirm: 'Oke',
+        confirmTextColor: Colors.white,
+        onConfirm: () => Get.back(),
       );
     }
   }

@@ -2,6 +2,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../data/models/courier_model.dart';
 import '../../../data/models/province_model.dart';
 import '../../../data/models/city_model.dart';
 import '../controllers/home_controller.dart';
@@ -61,8 +62,8 @@ class HomeView extends GetView<HomeController> {
                 child: const Text(
                   'Provinsi Asal',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -70,7 +71,7 @@ class HomeView extends GetView<HomeController> {
             asyncItems: (_) async => await controller.getProvinces(),
             onChanged: (province) => controller.setOriginProvince(province),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           GetBuilder<HomeController>(
             builder: (_) {
               return DropdownSearch<City>(
@@ -103,13 +104,13 @@ class HomeView extends GetView<HomeController> {
                     child: const Text(
                       'Kota/Kabupaten Asal',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                 ),
-                asyncItems: (_) async => await controller.getCities(),
+                asyncItems: (_) async => await controller.getCities(true),
                 onChanged: (city) => controller.setOriginCity(city),
               );
             },
@@ -136,12 +137,32 @@ class HomeView extends GetView<HomeController> {
                 title: Text("${item.province}"),
               ),
               showSearchBox: true,
+              searchFieldProps: const TextFieldProps(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Cari Provinsi',
+                  isDense: true,
+                ),
+              ),
+              title: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 8,
+                ),
+                child: const Text(
+                  'Provinsi Tujuan',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ),
             asyncItems: (_) async => await controller.getProvinces(),
             onChanged: (province) =>
                 controller.setDestinationProvince(province),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           GetBuilder<HomeController>(
             builder: (_) {
               return DropdownSearch<City>(
@@ -174,14 +195,14 @@ class HomeView extends GetView<HomeController> {
                     child: const Text(
                       'Kota/Kabupaten Tujuan',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                 ),
-                asyncItems: (_) async => await controller.getCities(),
-                onChanged: (city) => controller.setDetsinationCity(city),
+                asyncItems: (_) async => await controller.getCities(false),
+                onChanged: (city) => controller.setDestinationCity(city),
               );
             },
           ),
@@ -196,7 +217,7 @@ class HomeView extends GetView<HomeController> {
             ),
           ),
           const SizedBox(height: 30),
-          DropdownSearch<Map<String, dynamic>>(
+          DropdownSearch<Courier>(
             dropdownDecoratorProps: const DropDownDecoratorProps(
               dropdownSearchDecoration: InputDecoration(
                 labelText: "Pilih Kurir",
@@ -207,12 +228,12 @@ class HomeView extends GetView<HomeController> {
             popupProps: PopupProps.menu(
               fit: FlexFit.loose,
               itemBuilder: (_, item, __) => ListTile(
-                title: Text("${item["name"]}"),
+                title: Text("${item.name}"),
               ),
             ),
             dropdownBuilder: (_, selectedItem) =>
-                Text("${selectedItem?['name'] ?? "Pilih Kurir"}"),
-            onChanged: (value) => controller.setCourierCode(value?['code']),
+                Text(selectedItem?.name ?? "Pilih Kurir"),
+            onChanged: (courier) => controller.setCourierCode(courier),
           ),
           const SizedBox(height: 40),
           Obx(

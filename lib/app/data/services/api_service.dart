@@ -40,7 +40,7 @@ class ApiService {
     String originCityId,
     String destinationCityId,
     String weight,
-    String courier,
+    String courierCode,
   ) async {
     final response = await Dio().post(
       _urlCost,
@@ -54,7 +54,7 @@ class ApiService {
         "origin": originCityId,
         "destination": destinationCityId,
         "weight": weight,
-        "courier": courier,
+        "courier": courierCode,
       },
     );
 
