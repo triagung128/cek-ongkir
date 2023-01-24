@@ -1,5 +1,5 @@
 # Cek Ongkir
-Aplikasi cek ongkir. Project ini dibangun dengan Flutter + Getx + RajaOngkir Api + Dio.
+Aplikasi cek ongkir. Project ini dibangun dengan Flutter + Getx + RajaOngkir Api + Dio HTTP.
 
 ![Thumbnail](https://github.com/triagung128/cek-ongkir/blob/main/assets/screenshots/banner.png)
 
@@ -17,7 +17,7 @@ Aplikasi cek ongkir. Project ini dibangun dengan Flutter + Getx + RajaOngkir Api
 - <a href="https://rajaongkir.com/">RajaOngkir Api</a>
 
 ## Network Dependency
-- Dio
+- Dio HTTP
 
 ## Setup
 1. Membuat API KEY RajaOngkir di website <a href="https://rajaongkir.com/dokumentasi">Dokumentasi API RajaOngkir</a>
