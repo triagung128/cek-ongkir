@@ -1,16 +1,29 @@
-# cek_ongkir
+# Cek Ongkir
+Aplikasi cek ongkir. Project ini dibangun dengan Flutter + Getx + RajaOngkir Api.
+![Thumbnail](https://github.com/triagung128/cek-ongkir/blob/main/assets/screenshots/banner.png)
 
-A new Flutter project.
+## Feature Apps
+- Menghitung ongkos kirim seluruh Indonesia
+- Menampilkan semua data provinsi di Indonesia
+- Menampilkan semua kota berdasarkan provinsi yang dipilih
+- Menampilkan paket ongkos kirim
+- Jasa ekspedisi : JNE, TIKI, POS Indonesia
 
-## Getting Started
+## State Management
+- GetX
 
-This project is a starting point for a Flutter application.
+## Resource API
+- <a href="https://rajaongkir.com/">RajaOngkir Api</a>
 
-A few resources to get you started if this is your first Flutter project:
+## Network Dependency
+- Dio
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Setup
+1. Membuat API Key RajaOngkir di website <a href="https://rajaongkir.com/dokumentasi">Dokumentasi API RajaOngkir</a>
+2. Masukkan Api Key yang sudah dibuat di dalam file ***lib/app/data/services/api_services.dart***
+```dart
+class ApiService {
+  // insert with your RajaOngkir API KEY
+  final _apiKey = "<YOUR RAJAONGKIR API KEY>";
+}
+```

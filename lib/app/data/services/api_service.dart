@@ -5,7 +5,8 @@ import '../models/ongkir_model.dart';
 import '../models/province_model.dart';
 
 class ApiService {
-  final _apiKey = "7c417890b102d40434ef75d7a67849fe";
+  // insert with your RajaOngkir API KEY
+  final _apiKey = "<YOUR RAJAONGKIR API KEY>";
 
   final _urlGetProvince = "https://api.rajaongkir.com/starter/province";
   final _urlGetCity = "https://api.rajaongkir.com/starter/city";
